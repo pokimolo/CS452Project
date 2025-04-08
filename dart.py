@@ -17,8 +17,8 @@ class Dart:
         self.air_density = 1.225  # kg/m^3
         self.cross_sectional_area = 0.00635  # m² 
         self.position = np.array([-15.0, 1.5, 2.0])  # meters (start position)
-        self.velocity = np.array([40.0, 0.0, -3.0])  # m/s (forward and downward)
-        self.angular_velocity = np.array([0, 0, -11.0])  # rad/s (spin)
+        self.velocity = np.array([40.0, 0.0, -2.0])  # m/s (forward and downward)
+        self.angular_velocity = np.array([0, 0, -12.0])  # rad/s (spin)
         self.com_offset = np.array([0.0, 0.0, -0.077] )  # Example COM position (adjust as needed)
         self.moment_of_inertia = np.array([0.15, 0.15, 0.002])  # Simplified moment of inertia
         self.g = np.array([0, -9.81, 0])  # gravity
@@ -46,6 +46,7 @@ class Dart:
         self.object.rotate(self.angular_velocity[2] * dt, axis=(0, 0, 1))  # Rotate around Z-axis
         self.object.update_trail().update_shadows()
 
+
 def main():
     dart = Dart()
     plotter = vedo.Plotter(title="Physics-Based Dart Throw", size=(1000, 600))
@@ -58,10 +59,8 @@ def main():
     board.scale(0.03)
     board.rotate(90, (0, 0, 1))
     board.pos(17, 0, 0)
-
-    # Animate with timer
     def animate(event):
-        dart.animate(dt=0.01)  # timestep of 10ms
+        dart.animate(dt=0.01) 
         plotter.render()
 
     plotter.show(world, board, dart.object, axes=1, interactive=False)
