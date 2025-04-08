@@ -2,7 +2,8 @@ import vedo
 from vedo import Box, Mesh
 import numpy as np
 import os
-
+import numpy as np
+from bvh import * # homebrewed bounding volume hierarchy code from hw4
 class Dart:
     def __init__(self):
         stl_path = os.path.join(os.path.dirname(__file__), "Dart.stl")
@@ -23,49 +24,54 @@ class Dart:
         self.moment_of_inertia = np.array([0.15, 0.15, 0.002])  # Simplified moment of inertia
         self.g = np.array([0, -9.81, 0])  # gravity
 
-    def animate(self, dt):
+        self.bb = mesh_to_bounding_box(self.object)
+
+    def update_box(self):
+        self.bb = mesh_to_bounding_box(self.object)
+
+    def animate(self, dt, board_bb=None, world_bb=None):
         speed = np.linalg.norm(self.velocity)
         drag_force_mag = 0.5 * self.drag_coefficient * self.air_density * self.cross_sectional_area * speed**2
         drag_force = -drag_force_mag * self.velocity / speed if speed != 0 else np.zeros(3)
-        
-        # Calculate linear acceleration
         acceleration = (drag_force / self.mass) + self.g
-        
-        # Apply angular velocity (rotation stability)
         rotational_acceleration = np.cross(self.angular_velocity, self.moment_of_inertia)
-        
-        # Update position and velocity
         self.velocity += acceleration * dt
         self.position += self.velocity * dt
-
-        # Update angular velocity (spin)
         self.angular_velocity += rotational_acceleration * dt
 
-        # Update object position and rotation
         self.object.pos(self.position)
         self.object.rotate(self.angular_velocity[2] * dt, axis=(0, 0, 1))  # Rotate around Z-axis
         self.object.update_trail().update_shadows()
+        self.update_box()
+        
+        if self.bb.is_colliding(board_bb):
+            self.velocity = np.zeros(3)
+            self.angular_velocity = np.zeros(3)
+            self.object.color("orange")
 
+        
 
 def main():
     dart = Dart()
     plotter = vedo.Plotter(title="Physics-Based Dart Throw", size=(1000, 600))
-
-    # Setup the environment
     world = Box([0, 0, 0], 35, 16, 16).wireframe()
-
-    # Load and transform dartboard
     board = Mesh("Dartboard.stl").c("red")
     board.scale(0.03)
     board.rotate(90, (0, 0, 1))
     board.pos(17, 0, 0)
+
     def animate(event):
-        dart.animate(dt=0.01) 
+        board_bb = mesh_to_bounding_box(board)
+        world_bb = mesh_to_bounding_box(world)
+
+        dart.animate(dt=0.01, board_bb=board_bb, world_bb=world_bb)
+        # dart.animate(dt=0.01)
+
         plotter.render()
 
     plotter.show(world, board, dart.object, axes=1, interactive=False)
     plotter.add_callback("timer", animate)
-    plotter.timer_callback("create", dt=10)  # 10ms
+    plotter.timer_callback("create", dt=10)  # 10ms per frame
     plotter.interactive()
 
 if __name__ == "__main__":
