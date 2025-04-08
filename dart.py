@@ -1,4 +1,5 @@
 import vedo
+from vedo import Box
 import numpy as np
 import os
 
@@ -6,6 +7,7 @@ class Dart:
     def __init__(self):
         stl_path = os.path.join(os.path.dirname(__file__), "Dart.stl")
         self.object = vedo.load(stl_path) or vedo.Cone(r=5, height=20).color("blue")
+
         self.object.color("blue")
         self.object.rotate(angle=270, axis=(0, 1, 0), rad=False)
 
@@ -13,7 +15,7 @@ class Dart:
         self.mass = 0.02  # kg
         self.drag_coefficient = 0.47
         self.air_density = 1.225  # kg/m^3
-        self.cross_sectional_area = 0.0005  # m²
+        self.cross_sectional_area = 0.0005 # m²
 
         self.position = np.array([0.0, -1.2192, 0.0])  # meters
         self.velocity = np.array([20.0, 0.0, 0.0])     # m/s
@@ -33,6 +35,8 @@ class Dart:
 def main():
     dart = Dart()
     plotter = vedo.Plotter()
+    world = Box([0,0,0], 30, 16, 16).wireframe()
+
 
     # Define a timer callback for animation
     def animate(event):
@@ -40,7 +44,7 @@ def main():
         dart.animate(dt=0.01)  # 10ms step
         plotter.render()
 
-    plotter.show(dart.object, axes=1, interactive=False)
+    plotter.show(world, dart.object, axes=1, interactive=False)
     plotter.add_callback("timer", animate)
     plotter.timer_callback("create", dt=10)  # milliseconds
     plotter.interactive()
