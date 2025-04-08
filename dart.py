@@ -3,6 +3,7 @@ from vedo import Box, Mesh
 import numpy as np
 import os
 import numpy as np
+from playsound import playsound
 from bvh import * # homebrewed bounding volume hierarchy code from hw4
 class Dart:
     def __init__(self):
@@ -23,7 +24,7 @@ class Dart:
         self.com_offset = np.array([0.0, 0.0, -0.077] )  # Example COM position (adjust as needed)
         self.moment_of_inertia = np.array([0.15, 0.15, 0.002])  # Simplified moment of inertia
         self.g = np.array([0, -9.81, 0])  # gravity
-
+        self.sounded = False
         self.bb = mesh_to_bounding_box(self.object)
 
     def update_box(self):
@@ -45,9 +46,15 @@ class Dart:
         self.update_box()
         
         if self.bb.is_colliding(board_bb):
+            if not self.sounded:
+                playsound('dartsound2.m4a')
+            self.sounded = True
             self.velocity = np.zeros(3)
             self.angular_velocity = np.zeros(3)
             self.object.color("orange")
+            
+
+            
 
         
 
