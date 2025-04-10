@@ -70,6 +70,11 @@ class Dart:
         self.position[1] = y
         self.position[2] = z
         self.object.pos(self.position)
+    def set_velocity(self, vx, vy, vz):
+        self.velocity[0] = vx
+        self.velocity[1] = vy
+        self.velocity[2] = vz
+
     def update_box(self):
         self.bb = mesh_to_bounding_box(self.object)
 
@@ -118,7 +123,7 @@ def main():
 
     plotter = vedo.Plotter(title="Physics-Based Dart Throw", size=(1000, 600))
     vx = input("Enter the dart's initial velocity (m/s): ")
-    Dart.velocity = np.array([float(vx), 0.0, -2.0])
+    dart.velocity = np.array([float(vx), 0.0, -2.0])
 
     pos = input("Enter the dart's initial position (m) as a list [y, z]: ")
     y, z = map(float, pos.strip().split(' '))
