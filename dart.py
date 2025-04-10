@@ -4,6 +4,7 @@ import numpy as np
 import os
 from playsound import playsound
 from bvh import *  # homebrewed bounding volume hierarchy code from hw4
+import random
 
 class Dartboard:
     def __init__(self):
@@ -68,7 +69,7 @@ class Dart:
     def set_position(self, y, z):
         self.position[1] = y
         self.position[2] = z
-
+        self.object.pos(self.position)
     def update_box(self):
         self.bb = mesh_to_bounding_box(self.object)
 
@@ -113,13 +114,20 @@ class Dart:
 
 def main():
     dart = Dart()
+   
+
     plotter = vedo.Plotter(title="Physics-Based Dart Throw", size=(1000, 600))
+    vx = input("Enter the dart's initial velocity (m/s): ")
+    Dart.velocity = np.array([float(vx), 0.0, -2.0])
+
+    pos = input("Enter the dart's initial position (m) as a list [y, z]: ")
+    y, z = map(float, pos.strip().split(' '))
+    dart.set_position(y, z)
     world = Box([0, 0, 0], 35, 16, 16).wireframe()
     board = Dartboard()
     board_assembly = vedo.Assembly(board.rings)
 
     def animate(event):
-        # Use the board's bounding boxes
         board_bb = board.bbs
         world_bb = mesh_to_bounding_box(world)
         dart.launch(dt=0.01, board_bbs=board_bb, world_bb=world_bb)
